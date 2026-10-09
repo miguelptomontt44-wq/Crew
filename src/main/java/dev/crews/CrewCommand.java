@@ -99,7 +99,7 @@ public final class CrewCommand implements CommandExecutor, TabCompleter {
             for (String sub : SUBS) if (sub.startsWith(a[0].toLowerCase())) out.add(sub);
         } else if ((a.length == 3 && a[0].equalsIgnoreCase("create")) || (a.length == 2 && a[0].equalsIgnoreCase("color"))) {
             String pre = a[a.length - 1].toLowerCase();
-            for (CrewStyle.ColorOpt c : CrewStyle.COLORS) if (c.id().startsWith(pre)) out.add(c.id());
+            for (CrewStyle.ColorOpt opt : CrewStyle.COLORS) if (opt.id().startsWith(pre)) out.add(opt.id());
         } else if (a.length == 2 && (a[0].equalsIgnoreCase("invite") || a[0].equalsIgnoreCase("kick"))) {
             for (Player p : Bukkit.getOnlinePlayers())
                 if (p.getName().toLowerCase().startsWith(a[1].toLowerCase())) out.add(p.getName());
