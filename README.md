@@ -11,8 +11,15 @@ de la crew debajo del nametag.
    quedan en **Releases**.
 4. Pon el `.jar` en `plugins/`. Requiere **Java 25** y **Paper 26.3**.
 
+## Carpeta `build` en el repo
+Cada vez que subas cambios a `main`, el workflow compila y guarda en el propio repo la
+carpeta **`build/libs/`** con `Crews-1.0.0.jar`, `Crews-ResourcePack.zip` y
+`Crews-ResourcePack.sha1`. Para descargar el jar entra a `build/libs/` en GitHub y pulsa
+el archivo -> **Download raw file**. (En Settings -> Actions -> General -> Workflow
+permissions debe estar **Read and write permissions**.)
+
 ## Resource pack (textura del menu)
-Sube `Crews-ResourcePack.zip` al Release y copia en `plugins/Crews/config.yml`:
+Puedes usar el zip que queda en `build/libs/` (URL raw) o el del Release. Copia en `plugins/Crews/config.yml`:
 ```yaml
 resource-pack:
   url: "https://github.com/TU_USUARIO/TU_REPO/releases/download/v1.0.0/Crews-ResourcePack.zip"
