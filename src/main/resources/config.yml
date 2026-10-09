@@ -1,0 +1,23 @@
+# Como se abre el menu (ademas de /crew):
+#   SNEAK_SWAP = Shift + F   (recomendado)
+#   SWAP       = solo F (cambiar mano)
+#   NONE       = solo comando
+# Nota: un plugin de servidor NO puede detectar la tecla H, solo teclas que
+# el cliente vanilla envia al servidor (F, Shift, Q, etc).
+open-trigger: SNEAK_SWAP
+
+max-members: 20          # maximo 21 (es lo que cabe en el menu)
+members-can-invite: true # false = solo el lider invita
+invite-expire-seconds: 60
+
+nametag:
+  enabled: true
+  format: "<gray>[<gold><crew></gold>]"
+  y-offset: 0.1   # sube/baja el texto respecto al nametag (ajustalo in-game)
+  scale: 0.8
+
+# Resource pack con la textura del menu (lo genera el workflow de GitHub)
+resource-pack:
+  url: ""      # URL directa al Crews-ResourcePack.zip del Release
+  sha1: ""     # contenido de Crews-ResourcePack.sha1 (solo el hash)
+  force: false

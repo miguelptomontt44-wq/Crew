@@ -1,0 +1,10 @@
+name: Crews
+version: '${version}'
+main: dev.crews.CrewsPlugin
+api-version: '26.3'
+description: Crews / grupos con menu GUI y nombre de grupo bajo el nametag
+commands:
+  crew:
+    description: Menu y comandos de crews
+    aliases: [crews, grupo, hermandad]
+    usage: /crew [create|invite|accept|deny|leave|kick|rename|disband|info]
