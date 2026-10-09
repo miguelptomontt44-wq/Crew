@@ -57,8 +57,9 @@ public final class NameTagManager implements Listener {
     }
 
     private Component format(Crew crew) {
-        String f = plugin.getConfig().getString("nametag.format", "<gray>[<gold><crew></gold>]");
-        return Msg.MM.deserialize(f, Placeholder.unparsed("crew", crew.name()));
+        String f = plugin.getConfig().getString("nametag.format", "<gray>[<crew><gray>]");
+        Component name = Component.text(crew.name(), CrewStyle.color(crew.color()).color());
+        return Msg.MM.deserialize(f, Placeholder.component("crew", name));
     }
 
     private TextDisplay spawn(Player p) {

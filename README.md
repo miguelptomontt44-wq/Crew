@@ -22,7 +22,11 @@ Sin el pack el menu funciona igual, pero sin el fondo personalizado.
 
 ## Uso
 - Abrir menu: **Shift + F** o `/crew`
-- Crear: boton del menu o `/crew create <nombre>`
+- Crear: boton del menu (nombre -> color -> estandarte) o `/crew create <nombre> [color]`
+- Color del nombre bajo el tag: menu (16 colores) o `/crew color <color>`
+- Estandarte: en el menu puedes **disenarlo** (color base + hasta 6 capas con los patrones
+  vanilla) o usar el que llevas en la mano (`/crew banner` con el estandarte en la mano
+  principal). Solo el lider puede cambiarlo.
 - Invitar: boton del menu o `/crew invite <jugador>` (el jugador debe estar online)
 - `/crew accept|deny [crew]`, `/crew leave`, `/crew kick <jugador>`,
   `/crew rename <nombre>`, `/crew disband`, `/crew info`

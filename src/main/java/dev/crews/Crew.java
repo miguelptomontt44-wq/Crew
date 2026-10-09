@@ -1,5 +1,7 @@
 package dev.crews;
 
+import org.bukkit.inventory.ItemStack;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -7,6 +9,8 @@ import java.util.UUID;
 public final class Crew {
     private String name;
     private UUID leader;
+    private String color = CrewStyle.DEFAULT_COLOR;
+    private ItemStack banner = new ItemStack(CrewStyle.DEFAULT_BANNER);
     private final Set<UUID> members = new LinkedHashSet<>();
 
     public Crew(String name, UUID leader) {
@@ -22,4 +26,9 @@ public final class Crew {
     public void leader(UUID leader) { this.leader = leader; }
     public boolean isLeader(UUID id) { return leader.equals(id); }
     public Set<UUID> members() { return members; }
+
+    public String color() { return color; }
+    public void color(String color) { this.color = color; }
+    public ItemStack banner() { return banner.clone(); }
+    public void banner(ItemStack banner) { this.banner = banner.clone(); }
 }

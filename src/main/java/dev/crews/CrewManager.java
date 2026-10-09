@@ -44,16 +44,49 @@ public final class CrewManager {
     public Crew crewOf(Invite i) { return byKey.get(i.crewKey()); }
 
     // ---------- acciones (devuelven mensaje de error o null si OK) ----------
-    public String create(Player p, String name) {
-        if (byMember.containsKey(p.getUniqueId())) return "Ya perteneces a una crew.";
+    public String validateName(String name, Crew ignore) {
         if (!NAME_RE.matcher(name).matches()) return "Nombre invalido: 3-16 caracteres, solo letras, numeros y _.";
-        if (byKey.containsKey(name.toLowerCase())) return "Ya existe una crew con ese nombre.";
+        Crew other = byKey.get(name.toLowerCase());
+        if (other != null && other != ignore) return "Ya existe una crew con ese nombre.";
+        return null;
+    }
+
+    public String create(Player p, String name, String colorId, org.bukkit.inventory.ItemStack banner) {
+        if (byMember.containsKey(p.getUniqueId())) return "Ya perteneces a una crew.";
+        String v = validateName(name, null);
+        if (v != null) return v;
+        if (CrewStyle.findColor(colorId) == null) return "Color invalido.";
         Crew c = new Crew(name, p.getUniqueId());
+        c.color(CrewStyle.color(colorId).id());
+        org.bukkit.inventory.ItemStack clean = CrewStyle.cleanBanner(banner);
+        if (clean != null) c.banner(clean);
         byKey.put(c.key(), c);
         byMember.put(p.getUniqueId(), c);
         invites.remove(p.getUniqueId());
         save();
         plugin.nameTags().refresh(p);
+        return null;
+    }
+
+    public String setColor(Player actor, String colorId) {
+        Crew c = byMember.get(actor.getUniqueId());
+        if (c == null) return "No perteneces a ninguna crew.";
+        if (!c.isLeader(actor.getUniqueId())) return "Solo el lider puede cambiar el color.";
+        if (CrewStyle.findColor(colorId) == null) return "Color invalido.";
+        c.color(CrewStyle.color(colorId).id());
+        save();
+        refreshMembers(c);
+        return null;
+    }
+
+    public String setBanner(Player actor, org.bukkit.inventory.ItemStack banner) {
+        Crew c = byMember.get(actor.getUniqueId());
+        if (c == null) return "No perteneces a ninguna crew.";
+        if (!c.isLeader(actor.getUniqueId())) return "Solo el lider puede cambiar el estandarte.";
+        org.bukkit.inventory.ItemStack clean = CrewStyle.cleanBanner(banner);
+        if (clean == null) return "Eso no es un estandarte.";
+        c.banner(clean);
+        save();
         return null;
     }
 
@@ -155,9 +188,8 @@ public final class CrewManager {
         Crew c = byMember.get(actor.getUniqueId());
         if (c == null) return "No perteneces a ninguna crew.";
         if (!c.isLeader(actor.getUniqueId())) return "Solo el lider puede renombrar.";
-        if (!NAME_RE.matcher(name).matches()) return "Nombre invalido: 3-16 caracteres, solo letras, numeros y _.";
-        Crew other = byKey.get(name.toLowerCase());
-        if (other != null && other != c) return "Ya existe una crew con ese nombre.";
+        String v = validateName(name, c);
+        if (v != null) return v;
         byKey.remove(c.key());
         c.name(name);
         byKey.put(c.key(), c);
@@ -201,6 +233,14 @@ public final class CrewManager {
     }
 
     // ---------- persistencia ----------
+    private static org.bukkit.inventory.ItemStack decodeBanner(String data) {
+        try {
+            return org.bukkit.inventory.ItemStack.deserializeBytes(Base64.getDecoder().decode(data));
+        } catch (Exception e) {
+            return new org.bukkit.inventory.ItemStack(CrewStyle.banner(data));
+        }
+    }
+
     public void load() {
         byKey.clear(); byMember.clear();
         if (!file.exists()) return;
@@ -213,6 +253,8 @@ public final class CrewManager {
             try {
                 Crew c = new Crew(s.getString("name", key), UUID.fromString(s.getString("leader", "")));
                 for (String m : s.getStringList("members")) c.members().add(UUID.fromString(m));
+                c.color(CrewStyle.color(s.getString("color", CrewStyle.DEFAULT_COLOR)).id());
+                c.banner(decodeBanner(s.getString("banner", "")));
                 byKey.put(c.key(), c);
                 c.members().forEach(id -> byMember.put(id, c));
             } catch (IllegalArgumentException ex) {
@@ -227,6 +269,8 @@ public final class CrewManager {
             String p = "crews." + c.key() + ".";
             y.set(p + "name", c.name());
             y.set(p + "leader", c.leader().toString());
+            y.set(p + "color", c.color());
+            y.set(p + "banner", Base64.getEncoder().encodeToString(c.banner().serializeAsBytes()));
             y.set(p + "members", c.members().stream().map(UUID::toString).toList());
         }
         try {

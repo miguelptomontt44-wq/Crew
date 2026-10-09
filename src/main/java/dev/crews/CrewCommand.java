@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public final class CrewCommand implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS =
-            List.of("menu", "create", "invite", "accept", "deny", "leave", "kick", "rename", "disband", "info");
+            List.of("menu", "create", "color", "banner", "invite", "accept", "deny", "leave", "kick", "rename", "disband", "info");
 
     private final CrewsPlugin plugin;
 
@@ -31,9 +31,20 @@ public final class CrewCommand implements CommandExecutor, TabCompleter {
         String err;
         switch (a[0].toLowerCase()) {
             case "create" -> {
-                if (arg == null) { p.sendMessage(Msg.err("Uso: /crew create <nombre>")); return true; }
-                err = cm.create(p, arg);
-                reply(p, err, "Crew <gold>" + arg + "</gold> creada.");
+                if (arg == null) { p.sendMessage(Msg.err("Uso: /crew create <nombre> [color]")); return true; }
+                String color = a.length > 2 ? a[2].toLowerCase() : CrewStyle.DEFAULT_COLOR;
+                if (CrewStyle.findColor(color) == null) {
+                    p.sendMessage(Msg.err("Color invalido. Usa el menu o: " + colorIds()));
+                    return true;
+                }
+                err = cm.create(p, arg, color, new org.bukkit.inventory.ItemStack(CrewStyle.DEFAULT_BANNER));
+                reply(p, err, "Crew <gold>" + arg + "</gold> creada. Elige el estandarte desde el menu.");
+            }
+            case "banner" -> reply(p, cm.setBanner(p, p.getInventory().getItemInMainHand()),
+                    "Estandarte de la crew actualizado con el que llevas en la mano.");
+            case "color" -> {
+                if (arg == null) { p.sendMessage(Msg.err("Uso: /crew color <color>  (" + colorIds() + ")")); return true; }
+                reply(p, cm.setColor(p, arg.toLowerCase()), "Color actualizado.");
             }
             case "invite" -> {
                 if (arg == null) { p.sendMessage(Msg.err("Uso: /crew invite <jugador>")); return true; }
@@ -72,6 +83,10 @@ public final class CrewCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private static String colorIds() {
+        return String.join(", ", CrewStyle.COLORS.stream().map(CrewStyle.ColorOpt::id).toList());
+    }
+
     private void reply(Player p, String err, String ok) {
         if (err != null) p.sendMessage(Msg.err(err));
         else if (ok != null) p.sendMessage(Msg.ok(ok));
@@ -82,6 +97,9 @@ public final class CrewCommand implements CommandExecutor, TabCompleter {
         List<String> out = new ArrayList<>();
         if (a.length == 1) {
             for (String sub : SUBS) if (sub.startsWith(a[0].toLowerCase())) out.add(sub);
+        } else if ((a.length == 3 && a[0].equalsIgnoreCase("create")) || (a.length == 2 && a[0].equalsIgnoreCase("color"))) {
+            String pre = a[a.length - 1].toLowerCase();
+            for (CrewStyle.ColorOpt c : CrewStyle.COLORS) if (c.id().startsWith(pre)) out.add(c.id());
         } else if (a.length == 2 && (a[0].equalsIgnoreCase("invite") || a[0].equalsIgnoreCase("kick"))) {
             for (Player p : Bukkit.getOnlinePlayers())
                 if (p.getName().toLowerCase().startsWith(a[1].toLowerCase())) out.add(p.getName());
